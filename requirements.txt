@@ -1,6 +1,6 @@
 flask
-anthropic
 python-dotenv
 Pillow
 flask-cors
 gunicorn
+groq

@@ -4,19 +4,17 @@ import json
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-import anthropic
+from groq import Groq
 
-# Load your secret API key from .env file
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Connect to Claude AI
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # ------------------------------------------------------------
-# ROUTES — These are the URLs your browser can visit
+# ROUTES
 # ------------------------------------------------------------
 
 @app.route("/")
@@ -38,35 +36,12 @@ def gaps():
 
 @app.route("/api/competitive/analyze", methods=["POST"])
 def competitive_analyze():
-    """
-    Receives: text data + optional images from the marketing team
-    Returns: AI analysis with competitor insights
-    """
     try:
         data = request.form.get("data", "")
         company_name = request.form.get("company_name", "Unknown")
         competitors = request.form.get("competitors", "")
         analysis_type = request.form.get("analysis_type", "full")
 
-        # Build the message content — start with text
-        content = []
-
-        # If images were uploaded, add them
-        files = request.files.getlist("images")
-        for file in files:
-            if file and file.filename:
-                img_bytes = file.read()
-                img_b64 = base64.standard_b64encode(img_bytes).decode("utf-8")
-                content.append({
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": file.content_type or "image/jpeg",
-                        "data": img_b64
-                    }
-                })
-
-        # Add the text prompt
         prompt = f"""You are an expert marketing intelligence analyst for the energy services industry in the UAE and MENA region.
 
 Company being analyzed: {company_name}
@@ -97,7 +72,7 @@ Please provide a comprehensive competitive analysis in the following exact JSON 
       "metric": "metric name",
       "our_value": 75,
       "industry_average": 60,
-      "unit": "% or number or score"
+      "unit": "%"
     }}
   ],
   "chart_data": {{
@@ -126,23 +101,17 @@ Please provide a comprehensive competitive analysis in the following exact JSON 
   "improvement_areas": ["area 1", "area 2", "area 3"]
 }}
 
-If images were provided, analyze them as part of the competitive landscape (screenshots of competitor websites, ads, social media, etc.).
-Base your numerical estimates on industry knowledge and the data provided. Be specific and actionable.
 Return ONLY the JSON, no extra text."""
 
-        content.append({"type": "text", "text": prompt})
-
-        # Call Claude AI
-        response = client.messages.create(
-            model="claude-opus-4-5",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
             max_tokens=4000,
-            messages=[{"role": "user", "content": content}]
+            temperature=0.7
         )
 
-        # Parse the response
-        response_text = response.content[0].text.strip()
+        response_text = response.choices[0].message.content.strip()
 
-        # Clean up if Claude added markdown code fences
         if response_text.startswith("```"):
             response_text = response_text.split("```")[1]
             if response_text.startswith("json"):
@@ -159,22 +128,21 @@ Return ONLY the JSON, no extra text."""
 
 @app.route("/api/competitive/chat", methods=["POST"])
 def competitive_chat():
-    """Follow-up chat questions about the competitive analysis"""
     try:
         data = request.json
         question = data.get("question", "")
         context = data.get("context", "")
 
-        response = client.messages.create(
-            model="claude-opus-4-5",
-            max_tokens=1000,
-            system="You are an expert marketing analyst for EMDAD, a UAE energy services company. Answer questions about competitive intelligence clearly and concisely. Be specific, data-driven, and actionable.",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
             messages=[
+                {"role": "system", "content": "You are an expert marketing analyst for EMDAD, a UAE energy services company. Answer questions about competitive intelligence clearly and concisely. Be specific, data-driven, and actionable."},
                 {"role": "user", "content": f"Previous analysis context:\n{context}\n\nQuestion: {question}"}
-            ]
+            ],
+            max_tokens=1000
         )
 
-        return jsonify({"success": True, "answer": response.content[0].text})
+        return jsonify({"success": True, "answer": response.choices[0].message.content})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
@@ -185,10 +153,6 @@ def competitive_chat():
 
 @app.route("/api/gaps/analyze", methods=["POST"])
 def gaps_analyze():
-    """
-    Receives: marketing data, current activities, goals
-    Returns: Gap analysis with specific recommendations
-    """
     try:
         current_activities = request.form.get("current_activities", "")
         goals = request.form.get("goals", "")
@@ -225,8 +189,8 @@ Perform a thorough marketing gap analysis. Return ONLY this JSON:
     {{
       "gap_title": "Gap name",
       "description": "What is missing and why it matters",
-      "current_state": "What they have now (score 0-100)",
-      "desired_state": "What they should have (score 0-100)",
+      "current_state": "What they have now",
+      "desired_state": "What they should have",
       "current_score": 40,
       "target_score": 85,
       "impact": "High/Medium/Low",
@@ -234,36 +198,11 @@ Perform a thorough marketing gap analysis. Return ONLY this JSON:
     }}
   ],
   "channel_performance": [
-    {{
-      "channel": "LinkedIn",
-      "current_usage": 60,
-      "recommended_usage": 90,
-      "roi_potential": "High"
-    }},
-    {{
-      "channel": "Website SEO",
-      "current_usage": 30,
-      "recommended_usage": 85,
-      "roi_potential": "High"
-    }},
-    {{
-      "channel": "Email Marketing",
-      "current_usage": 45,
-      "recommended_usage": 80,
-      "roi_potential": "Medium"
-    }},
-    {{
-      "channel": "Events/Trade Shows",
-      "current_usage": 70,
-      "recommended_usage": 75,
-      "roi_potential": "High"
-    }},
-    {{
-      "channel": "Content Marketing",
-      "current_usage": 25,
-      "recommended_usage": 80,
-      "roi_potential": "High"
-    }}
+    {{"channel": "LinkedIn", "current_usage": 60, "recommended_usage": 90, "roi_potential": "High"}},
+    {{"channel": "Website SEO", "current_usage": 30, "recommended_usage": 85, "roi_potential": "High"}},
+    {{"channel": "Email Marketing", "current_usage": 45, "recommended_usage": 80, "roi_potential": "Medium"}},
+    {{"channel": "Events/Trade Shows", "current_usage": 70, "recommended_usage": 75, "roi_potential": "High"}},
+    {{"channel": "Content Marketing", "current_usage": 25, "recommended_usage": 80, "roi_potential": "High"}}
   ],
   "quick_wins": [
     {{
@@ -286,11 +225,7 @@ Perform a thorough marketing gap analysis. Return ONLY this JSON:
     }}
   ],
   "gap_matrix": [
-    {{
-      "area": "Marketing Area",
-      "importance": 85,
-      "current_performance": 40
-    }}
+    {{"area": "Marketing Area", "importance": 85, "current_performance": 40}}
   ],
   "roadmap": [
     {{
@@ -314,16 +249,17 @@ Perform a thorough marketing gap analysis. Return ONLY this JSON:
   ]
 }}
 
-Make all insights specific to a UAE B2B energy services company. Use industry-specific language. Be direct and actionable.
-Return ONLY the JSON."""
+Make all insights specific to a UAE B2B energy services company. Return ONLY the JSON."""
 
-        response = client.messages.create(
-            model="claude-opus-4-5",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
             max_tokens=4000,
-            messages=[{"role": "user", "content": prompt}]
+            temperature=0.7
         )
 
-        response_text = response.content[0].text.strip()
+        response_text = response.choices[0].message.content.strip()
+
         if response_text.startswith("```"):
             response_text = response_text.split("```")[1]
             if response_text.startswith("json"):
@@ -340,21 +276,21 @@ Return ONLY the JSON."""
 
 @app.route("/api/gaps/chat", methods=["POST"])
 def gaps_chat():
-    """Follow-up chat for gap analysis"""
     try:
         data = request.json
         question = data.get("question", "")
         context = data.get("context", "")
 
-        response = client.messages.create(
-            model="claude-opus-4-5",
-            max_tokens=1000,
-            system="You are a senior B2B marketing strategist for EMDAD, a UAE energy services company. Answer questions about marketing gaps, strategy, and recommendations clearly. Be specific, practical, and tailored to the UAE market.",
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
             messages=[
+                {"role": "system", "content": "You are a senior B2B marketing strategist for EMDAD, a UAE energy services company. Answer questions about marketing gaps, strategy, and recommendations clearly. Be specific, practical, and tailored to the UAE market."},
                 {"role": "user", "content": f"Gap analysis context:\n{context}\n\nQuestion: {question}"}
-            ]
+            ],
+            max_tokens=1000
         )
-        return jsonify({"success": True, "answer": response.content[0].text})
+
+        return jsonify({"success": True, "answer": response.choices[0].message.content})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

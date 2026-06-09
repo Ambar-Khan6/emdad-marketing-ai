@@ -5,34 +5,282 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EMDAD Marketing Intelligence Platform</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .home-hero {
+      background: #F5F0E8;
+      background-image:
+        radial-gradient(ellipse at 15% 50%, rgba(184,150,12,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 85% 30%, rgba(200,16,46,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 90%, rgba(0,102,51,0.05) 0%, transparent 50%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle geometric background lines */
+    .home-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(184,150,12,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(184,150,12,0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .home-top-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #C8102E, #B8960C, #006633, #B8960C, #C8102E);
+    }
+
+    .home-logo-wrap {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .home-logo-img {
+      width: 72px;
+      height: 72px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+    }
+
+    .home-logo-text-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .home-logo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #C8102E;
+      line-height: 1;
+      letter-spacing: 2px;
+    }
+
+    .home-logo-sub {
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .home-divider {
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, #C8102E, #B8960C);
+      margin: 0 auto 1.2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .home-tagline {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: #1C1C1C;
+      text-align: center;
+      margin-bottom: 0.6rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .home-tagline span { color: #B8960C; }
+
+    .home-subtitle {
+      color: #888;
+      text-align: center;
+      font-size: 0.9rem;
+      max-width: 480px;
+      margin: 0 auto 3rem;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    .agent-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 760px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .agent-card {
+      background: #FFFFFF;
+      border: 1px solid #E8E0D0;
+      border-radius: 16px;
+      padding: 2rem;
+      text-decoration: none;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .agent-card.red::before  { background: linear-gradient(90deg, #C8102E, #B8960C); }
+    .agent-card.green::before{ background: linear-gradient(90deg, #006633, #B8960C); }
+
+    .agent-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      border-color: #D4C8B0;
+    }
+
+    .agent-card-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+
+    .agent-card.red   .agent-card-icon { background: rgba(200,16,46,0.08); }
+    .agent-card.green .agent-card-icon { background: rgba(0,102,51,0.08); }
+
+    .agent-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1C1C1C;
+      margin-bottom: 0.5rem;
+    }
+
+    .agent-card p {
+      color: #888;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    .agent-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #F0E8D8;
+    }
+
+    .agent-card-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .agent-card.red   .agent-card-label { color: #C8102E; }
+    .agent-card.green .agent-card-label { color: #006633; }
+
+    .agent-card-arrow {
+      color: #B8960C;
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .agent-card:hover .agent-card-arrow { transform: translateX(4px); }
+
+    .home-footer {
+      margin-top: 3rem;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .home-footer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid #E8E0D0;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 0.7rem;
+      color: #AAA;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .home-footer-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #B8960C;
+    }
+
+    @media (max-width: 600px) {
+      .agent-cards-grid { grid-template-columns: 1fr; }
+      .home-logo-name { font-size: 2rem; }
+      .home-tagline { font-size: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
   <div class="home-hero">
-    <div class="home-logo-ring">
-      <div class="home-logo-inner">
-        <span class="home-logo-text">E</span>
+    <div class="home-top-bar"></div>
+
+    <div class="home-logo-wrap">
+      <img src="{{ url_for('static', filename='images/emdad-logo.svg') }}" class="home-logo-img" alt="EMDAD Logo">
+      <div class="home-logo-text-block">
+        <div class="home-logo-name">EMDAD</div>
+        <div class="home-logo-sub">Energy Industries &nbsp;|&nbsp; Abu Dhabi, UAE</div>
       </div>
     </div>
-    <div class="home-tagline">EMDAD LLC — Abu Dhabi, UAE</div>
-    <h1>Marketing <span>Intelligence</span> Platform</h1>
-    <p class="subtitle">AI-powered competitive analysis and strategic gap detection for the MENA energy sector</p>
+
+    <div class="home-divider"></div>
+
+    <h1 class="home-tagline">Marketing <span>Intelligence</span> Platform</h1>
+    <p class="home-subtitle">AI-powered competitive analysis and strategic gap detection — built exclusively for EMDAD's marketing team.</p>
 
     <div class="agent-cards-grid">
       <a href="/competitive" class="agent-card red">
         <div class="agent-card-icon">&#128269;</div>
         <h3>Competitive Intelligence Agent</h3>
-        <p>Analyze competitors, upload screenshots and data, generate comparison charts, identify what is working and what is not.</p>
-        <span class="agent-card-arrow">&#8594;</span>
+        <p>Upload competitor screenshots and data. Get AI analysis, comparison charts, and a clear picture of where EMDAD stands.</p>
+        <div class="agent-card-footer">
+          <span class="agent-card-label">Agent 01</span>
+          <span class="agent-card-arrow">&#8594;</span>
+        </div>
       </a>
+
       <a href="/gaps" class="agent-card green">
         <div class="agent-card-icon">&#128200;</div>
         <h3>Marketing Gap Analysis Agent</h3>
-        <p>Identify missing strategies, channel gaps, and build a prioritized roadmap for marketing improvement.</p>
-        <span class="agent-card-arrow">&#8594;</span>
+        <p>Describe your current marketing. The AI identifies what is missing and builds a prioritized roadmap to close every gap.</p>
+        <div class="agent-card-footer">
+          <span class="agent-card-label">Agent 02</span>
+          <span class="agent-card-arrow">&#8594;</span>
+        </div>
       </a>
     </div>
 
-    <div class="home-footer-note">CONFIDENTIAL &nbsp;|&nbsp; EMDAD MARKETING DEPARTMENT &nbsp;|&nbsp; POWERED BY CLAUDE AI</div>
+    <div class="home-footer">
+      <div class="home-footer-badge">
+        <div class="home-footer-dot"></div>
+        Confidential &nbsp;|&nbsp; EMDAD Marketing Department &nbsp;|&nbsp; Powered by Claude AI
+        <div class="home-footer-dot"></div>
+      </div>
+    </div>
   </div>
 </body>
 </html>
