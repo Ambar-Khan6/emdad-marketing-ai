@@ -14,12 +14,12 @@
 <div class="analyzing-overlay" id="loadingOverlay">
   <div class="analyzing-spinner"></div>
   <div class="analyzing-text">Identifying Marketing Gaps</div>
-  <div class="analyzing-sub">Claude AI is analyzing your strategy...</div>
+  <div class="analyzing-sub">AI is analyzing your strategy...</div>
 </div>
 
 <nav class="navbar">
   <a href="/" class="navbar-brand">
-    <div class="brand-logo-block"><span class="brand-logo-text">E</span></div>
+    <img src="{{ url_for('static', filename='images/emdad-logo.png') }}" style="height:40px;width:auto;" alt="EMDAD Logo">
     <div class="brand-name">
       <span class="main">EMDAD</span>
       <span class="sub">Marketing Intelligence</span>
@@ -45,7 +45,6 @@
 </div>
 
 <div class="main-content">
-
   <div id="inputSection">
     <div class="grid-2" style="margin-bottom:1.5rem;">
       <div class="card">
@@ -56,17 +55,14 @@
             <div class="card-subtitle">Tell us what you are doing now</div>
           </div>
         </div>
-
         <div class="form-group">
           <label>Current Marketing Activities</label>
           <textarea id="currentActivities" placeholder="Describe what marketing activities you currently do. e.g.: We post on LinkedIn twice a week, attend ADIPEC annually, have a website, send email newsletters monthly..."></textarea>
         </div>
-
         <div class="form-group">
           <label>Business Goals (next 12 months)</label>
           <textarea id="goals" placeholder="e.g.: Increase ADNOC contract enquiries by 30%, expand into Saudi Arabia, improve brand recognition among engineering decision-makers..." style="min-height:80px;"></textarea>
         </div>
-
         <div class="form-group">
           <label>Marketing Budget Range</label>
           <select id="budget">
@@ -84,155 +80,3 @@
           <div>
             <div class="card-title">Channels and Audience</div>
             <div class="card-subtitle">Where you show up and who you target</div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Marketing Channels Currently Used</label>
-          <textarea id="channels" placeholder="e.g.: LinkedIn, company website, ADIPEC trade show, email, word of mouth, industry publications..." style="min-height:80px;"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Target Audience</label>
-          <textarea id="targetAudience" placeholder="e.g.: Procurement managers at ADNOC group companies, project directors at FEED contractors, HSE managers at upstream operators..." style="min-height:80px;"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Analysis Timeframe</label>
-          <select id="timeframe">
-            <option value="6 months">Next 6 months</option>
-            <option value="12 months" selected>Next 12 months</option>
-            <option value="24 months">Next 24 months</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Upload Data Files (optional)</label>
-          <div class="upload-zone" style="padding:1rem;">
-            <input type="file" id="fileInput" multiple accept=".csv,.txt,.xlsx" onchange="handleFiles(this.files)">
-            <div style="font-size:0.85rem;color:var(--text-muted);">Click to upload CSV or TXT files</div>
-          </div>
-          <div class="uploaded-files" id="uploadedFiles"></div>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:12px;justify-content:flex-end;">
-      <button class="btn btn-outline" onclick="clearForm()">Clear</button>
-      <button class="btn btn-green btn-lg" id="analyzeBtn" onclick="runAnalysis()">
-        Find Marketing Gaps
-      </button>
-    </div>
-  </div>
-
-  <!-- RESULTS -->
-  <div id="resultsSection" class="hidden">
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px;">
-      <div>
-        <h2 style="margin:0;font-size:1.4rem;color:var(--charcoal);">Gap Analysis Results</h2>
-        <p style="margin:0;font-size:0.8rem;" id="analysisTimestamp"></p>
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-outline btn-sm" onclick="showInput()">New Analysis</button>
-        <button class="btn btn-gold btn-sm" onclick="exportPDF()">Export PDF Report</button>
-      </div>
-    </div>
-
-    <!-- Gap Score -->
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
-      <div style="text-align:center;flex-shrink:0;">
-        <div style="position:relative;width:110px;height:110px;margin:0 auto;">
-          <canvas id="gapScoreGauge" width="110" height="110"></canvas>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--red);" id="gapScoreValue">--</div>
-            <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Gap Score</div>
-          </div>
-        </div>
-      </div>
-      <div style="flex:1;min-width:200px;">
-        <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--charcoal);margin-bottom:6px;" id="gapScoreLabel"></div>
-        <p style="margin:0;" id="gapSummaryText"></p>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showTab('gaps')">Critical Gaps</button>
-      <button class="tab-btn" onclick="showTab('channels')">Channels</button>
-      <button class="tab-btn" onclick="showTab('quickwins')">Quick Wins</button>
-      <button class="tab-btn" onclick="showTab('strategy')">Strategy</button>
-      <button class="tab-btn" onclick="showTab('roadmap')">Roadmap</button>
-    </div>
-
-    <!-- TAB: GAPS -->
-    <div id="tab-gaps">
-      <div id="gapsList"></div>
-    </div>
-
-    <!-- TAB: CHANNELS -->
-    <div id="tab-channels" class="hidden">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon red">&#128202;</div>
-          <div><div class="card-title">Channel Performance vs Recommended</div></div>
-        </div>
-        <div style="height:320px;margin-bottom:1.5rem;"><canvas id="channelChart"></canvas></div>
-        <div id="channelDetails"></div>
-      </div>
-    </div>
-
-    <!-- TAB: QUICK WINS -->
-    <div id="tab-quickwins" class="hidden">
-      <div id="quickWinsList"></div>
-    </div>
-
-    <!-- TAB: STRATEGY -->
-    <div id="tab-strategy" class="hidden">
-      <div id="strategyList"></div>
-    </div>
-
-    <!-- TAB: ROADMAP -->
-    <div id="tab-roadmap" class="hidden">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-icon green">&#128336;</div>
-          <div><div class="card-title">Implementation Roadmap</div></div>
-        </div>
-        <div class="roadmap-phase-container" id="roadmapContainer"></div>
-      </div>
-    </div>
-
-    <!-- Chat -->
-    <div class="card" style="margin-top:1.5rem;">
-      <div class="card-header">
-        <div class="card-icon silver">&#128172;</div>
-        <div>
-          <div class="card-title">Ask the Strategy Agent</div>
-          <div class="card-subtitle">Ask follow-up questions about gaps, recommendations, or how to implement</div>
-        </div>
-      </div>
-      <div class="chat-container">
-        <div class="chat-header">
-          <span class="chat-header-dot"></span>
-          <span style="font-size:0.85rem;font-weight:600;">EMDAD Strategy Agent</span>
-          <span style="font-size:0.75rem;opacity:0.5;margin-left:auto;">Powered by Claude AI</span>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-          <div class="chat-message">
-            <div class="chat-avatar ai">AI</div>
-            <div class="chat-bubble ai">Gap analysis complete. Ask me how to close any gap, what to prioritize first, or how to build a case for budget approval.</div>
-          </div>
-        </div>
-        <div class="chat-input-row">
-          <input type="text" class="chat-input" id="chatInput" placeholder="e.g. How should we improve our LinkedIn strategy?" onkeydown="if(event.key==='Enter') sendChat()">
-          <button class="btn btn-green btn-sm" onclick="sendChat()">Send</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<script src="{{ url_for('static', filename='js/gaps.js') }}"></script>
-</body>
-</html>
