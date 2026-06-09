@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCT<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -11,15 +11,17 @@
 </head>
 <body>
 
+<!-- LOADING OVERLAY -->
 <div class="analyzing-overlay" id="loadingOverlay">
   <div class="analyzing-spinner"></div>
   <div class="analyzing-text">Analyzing Competitive Landscape</div>
-  <div class="analyzing-sub">AI is processing your data...</div>
+  <div class="analyzing-sub">Claude AI is processing your data...</div>
 </div>
 
+<!-- NAVIGATION -->
 <nav class="navbar">
   <a href="/" class="navbar-brand">
-    <img src="{{ url_for('static', filename='images/emdad-logo.png') }}" style="height:40px;width:auto;" alt="EMDAD Logo">
+    <div class="brand-logo-block"><span class="brand-logo-text">E</span></div>
     <div class="brand-name">
       <span class="main">EMDAD</span>
       <span class="sub">Marketing Intelligence</span>
@@ -36,6 +38,7 @@
 </nav>
 <div class="gold-line"></div>
 
+<!-- PAGE HERO -->
 <div class="page-hero">
   <div class="page-hero-inner">
     <div class="hero-badge"><span class="dot"></span>Agent 01 — Live</div>
@@ -44,9 +47,14 @@
   </div>
 </div>
 
+<!-- MAIN -->
 <div class="main-content">
+
+  <!-- INPUT SECTION -->
   <div id="inputSection">
     <div class="grid-2" style="margin-bottom:1.5rem;">
+
+      <!-- Left: Data Input -->
       <div class="card">
         <div class="card-header">
           <div class="card-icon red">&#128196;</div>
@@ -55,18 +63,22 @@
             <div class="card-subtitle">Enter what you know about the market</div>
           </div>
         </div>
+
         <div class="form-group">
           <label>Your Company Name</label>
           <input type="text" id="companyName" placeholder="e.g. EMDAD LLC" value="EMDAD LLC">
         </div>
+
         <div class="form-group">
           <label>Known Competitors (comma separated)</label>
           <input type="text" id="competitors" placeholder="e.g. ADES, Target Energy, NPS, Archirodon">
         </div>
+
         <div class="form-group">
           <label>Market Data, Observations and Notes</label>
           <textarea id="marketData" placeholder="Paste any data here: social media metrics, website stats, market observations, news, pricing info, campaign performance numbers, anything you have..."></textarea>
         </div>
+
         <div class="form-group">
           <label>Type of Analysis</label>
           <select id="analysisType">
@@ -78,6 +90,7 @@
         </div>
       </div>
 
+      <!-- Right: File Upload -->
       <div class="card">
         <div class="card-header">
           <div class="card-icon gold">&#128247;</div>
@@ -86,18 +99,221 @@
             <div class="card-subtitle">Competitor ads, websites, social posts, data files</div>
           </div>
         </div>
+
         <div class="upload-zone" id="uploadZone">
           <input type="file" id="fileInput" multiple accept="image/*,.csv,.xlsx,.txt" onchange="handleFiles(this.files)">
           <div class="upload-icon">&#128193;</div>
           <div class="upload-text">Click or drag files here</div>
           <div class="upload-sub">Screenshots (JPG, PNG), Data files (CSV, TXT) — up to 10 files</div>
         </div>
+
         <div class="uploaded-files" id="uploadedFiles"></div>
+
         <div style="margin-top:1.2rem;">
           <div class="card-header" style="border:none;padding:0;margin-bottom:0.8rem;">
             <div class="card-icon silver">&#8505;</div>
-            <div><div class="card-title" style="font-size:0.9rem;">What to upload</div></div>
+            <div>
+              <div class="card-title" style="font-size:0.9rem;">What to upload</div>
+            </div>
           </div>
           <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
-            <li style="font-size:0.8rem;color:var(--text-muted);display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--gold);font-size:0.7rem;margin-top:3px;">&#9632;</span> Competitor website screenshots</li>
-            <li style="font-size:0.8rem;color:var(--text-muted);display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--gold);font-size:0.7rem;margin-top:3px;">&#9
+            <li style="font-size:0.8rem;color:var(--text-muted);display:flex;gap:8px;align-items:flex-start;">
+              <span style="color:var(--gold);font-size:0.7rem;margin-top:3px;">&#9632;</span> Competitor website screenshots
+            </li>
+            <li style="font-size:0.8rem;color:var(--text-muted);display:flex;gap:8px;align-items:flex-start;">
+              <span style="color:var(--gold);font-size:0.7rem;margin-top:3px;">&#9632;</span> Social media posts or ads
+            </li>
+            <li style="font-size:0.8rem;color:var(--text-muted);display:flex;gap:8px;align-items:flex-start;">
+              <span style="color:var(--gold);font-size:0.7rem;margin-top:3px;">&#9632;</span> Campaign performance CSV files
+            </li>
+            <li style="font-size:0.8rem;color:var(--text-muted);display:flex;gap:8px;align-items:flex-start;">
+              <span style="color:var(--gold);font-size:0.7rem;margin-top:3px;">&#9632;</span> Market reports or any screenshots
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button class="btn btn-outline" onclick="clearForm()">Clear</button>
+      <button class="btn btn-primary btn-lg" id="analyzeBtn" onclick="runAnalysis()">
+        Run Competitive Analysis
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS SECTION (hidden until analysis runs) -->
+  <div id="resultsSection" class="hidden">
+
+    <!-- Top action bar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px;">
+      <div>
+        <h2 style="margin:0;font-size:1.4rem;color:var(--charcoal);">Analysis Results</h2>
+        <p style="margin:0;font-size:0.8rem;" id="analysisTimestamp"></p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline btn-sm" onclick="showInput()">New Analysis</button>
+        <button class="btn btn-gold btn-sm" onclick="exportPDF()">Export PDF Report</button>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="exec-summary" id="execSummary">
+      <div class="exec-summary-label">Executive Summary</div>
+      <p id="execSummaryText"></p>
+    </div>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip" id="statsStrip">
+      <div class="stat-item">
+        <div class="stat-value red" id="statCompetitors">0</div>
+        <div class="stat-label">Competitors Analyzed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value green" id="statStrengths">0</div>
+        <div class="stat-label">Strengths Identified</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value gold" id="statOpportunities">0</div>
+        <div class="stat-label">Opportunities Found</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value silver" id="statActions">0</div>
+        <div class="stat-label">Priority Actions</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+      <button class="tab-btn" onclick="showTab('competitors')">Competitors</button>
+      <button class="tab-btn" onclick="showTab('charts')">Charts</button>
+      <button class="tab-btn" onclick="showTab('marketing')">Marketing</button>
+      <button class="tab-btn" onclick="showTab('actions')">Action Plan</button>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <div id="tab-overview">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">&#10003;</div>
+            <div><div class="card-title">EMDAD Strengths</div></div>
+          </div>
+          <div id="strengthsList"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon red">&#9888;</div>
+            <div><div class="card-title">Areas to Improve</div></div>
+          </div>
+          <div id="weaknessesList"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.5rem;">
+        <div class="card-header">
+          <div class="card-icon gold">&#128161;</div>
+          <div><div class="card-title">Market Opportunities</div></div>
+        </div>
+        <div id="opportunitiesList"></div>
+      </div>
+    </div>
+
+    <!-- TAB: COMPETITORS -->
+    <div id="tab-competitors" class="hidden">
+      <div id="competitorCards"></div>
+    </div>
+
+    <!-- TAB: CHARTS -->
+    <div id="tab-charts" class="hidden">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon red">&#9685;</div>
+            <div><div class="card-title">Market Share Estimate</div></div>
+          </div>
+          <div style="height:280px;"><canvas id="marketShareChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">&#128202;</div>
+            <div><div class="card-title">Performance Comparison</div></div>
+          </div>
+          <div style="height:280px;"><canvas id="performanceChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.5rem;">
+        <div class="card-header">
+          <div class="card-icon gold">&#128196;</div>
+          <div><div class="card-title">Statistical Insights</div></div>
+        </div>
+        <div id="statisticalInsights"></div>
+      </div>
+    </div>
+
+    <!-- TAB: MARKETING -->
+    <div id="tab-marketing" class="hidden">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">&#10003;</div>
+            <div><div class="card-title">What is Working</div></div>
+          </div>
+          <div id="workingList"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon red">&#215;</div>
+            <div><div class="card-title">What is Not Working</div></div>
+          </div>
+          <div id="notWorkingList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: ACTIONS -->
+    <div id="tab-actions" class="hidden">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon red">&#9881;</div>
+          <div><div class="card-title">Priority Action Plan</div></div>
+        </div>
+        <div id="actionsList"></div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="card" style="margin-top:1.5rem;">
+      <div class="card-header">
+        <div class="card-icon silver">&#128172;</div>
+        <div>
+          <div class="card-title">Ask the AI Analyst</div>
+          <div class="card-subtitle">Ask follow-up questions about this analysis</div>
+        </div>
+      </div>
+      <div class="chat-container">
+        <div class="chat-header">
+          <span class="chat-header-dot"></span>
+          <span style="font-size:0.85rem;font-weight:600;">EMDAD Intelligence Agent</span>
+          <span style="font-size:0.75rem;opacity:0.5;margin-left:auto;">Powered by Claude AI</span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-message">
+            <div class="chat-avatar ai">AI</div>
+            <div class="chat-bubble ai">Analysis complete. Ask me anything about the competitive landscape, specific competitors, or what EMDAD should prioritize.</div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask a question about the analysis..." onkeydown="if(event.key==='Enter') sendChat()">
+          <button class="btn btn-primary btn-sm" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/competitive.js') }}"></script>
+</body>
+</html>
