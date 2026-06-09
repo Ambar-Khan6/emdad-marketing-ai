@@ -303,4 +303,4 @@ if __name__ == "__main__":
     os.makedirs("static/images", exist_ok=True)
     print("EMDAD Marketing AI Platform is running...")
     print("Open your browser and go to: http://localhost:5000")
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", port=5000)
