@@ -5,6 +5,5 @@ __pycache__/
 uploads/
 *.jpg
 *.jpeg
-*.png
 *.pdf
 .DS_Store
